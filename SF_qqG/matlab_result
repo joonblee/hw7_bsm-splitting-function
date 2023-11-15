@@ -1,0 +1,53 @@
+simplify( coeffs( M_uu2p, lambda ) ) 
+(4*pt^2*exp(-phi*2i))/(z^(1/2)*(z - 1)^2)
+simplify( coeffs( M_ud2p, lambda ) ) 
+-(4*pt*exp(-phi*1i)*(m1 - m0*z))/(z^(1/2)*(z - 1))
+simplify( coeffs( M_du2p, lambda ) ) 
+0
+simplify( coeffs( M_dd2p, lambda ) ) 
+(4*pt^2*z*exp(-phi*2i))/(z^(1/2)*(z - 1)^2)
+
+---------------------------------------------------
+simplify( coeffs( M_uu1p, lambda ) ) 
+(2*pt*exp(-phi*1i)*(m1^2*z^2 - 2*m1^2*z + m1^2 + m0*m1*z^3 - 2*m0*m1*z^2 + m0*m1*z - 2*m2^2*z^2 + pt^2*z + pt^2))/(m2*z*z^(1/2)*(z - 1)^2)
+simplify( coeffs( M_ud1p, lambda ) ) 
+-(2*(m1^3*z^2 - 2*m1^3*z + m1^3 - m0*m1^2*z^3 + 2*m0*m1^2*z^2 - m0*m1^2*z - m1*m2^2*z^2 + m1*pt^2*z + m1*pt^2 + m0*m2^2*z^3 - 2*m0*pt^2*z))/(m2*z*z^(1/2)*(z - 1))
+simplify( coeffs( M_du1p, lambda ) ) 
+-(2*pt^2*exp(-phi*2i)*(m0 - m1))/(m2*z^(1/2)*(z - 1))
+simplify( coeffs( M_dd1p, lambda ) ) 
+(2*pt*exp(-phi*1i)*(m1^2*z^2 - 2*m1^2*z + m1^2 + m0*m1*z^2 - 2*m0*m1*z + m0*m1 - m2^2*z^2 - m2^2*z + 2*pt^2))/(m2*z^(1/2)*(z - 1)^2)
+
+---------------------------------------------------
+simplify( coeffs( M_uu0, lambda ) ) 
+(2*6^(1/2)*(m0*m1^3*z^4 - 4*m0*m1^3*z^3 + 6*m0*m1^3*z^2 - 4*m0*m1^3*z + m0*m1^3 - m1^2*m2^2*z^3 + 2*m1^2*m2^2*z^2 - m1^2*m2^2*z + m1^2*pt^2*z^2 - 2*m1^2*pt^2*z + m1^2*pt^2 - m0*m1*m2^2*z^4 + 2*m0*m1*m2^2*z^3 - m0*m1*m2^2*z^2 + m0*m1*pt^2*z^2 - 2*m0*m1*pt^2*z + m0*m1*pt^2 + m2^4*z^3 - 2*m2^2*pt^2*z^2 - 2*m2^2*pt^2*z + pt^4))/(3*m2^2*z*z^(1/2)*(z - 1)^2)
+simplify( coeffs( M_ud0, lambda ) ) 
+6^(1/2)*((2*pt*(m1 - m0*z)*(cos(phi) + sin(phi)*1i))/(3*z^(1/2)*(z - 1)) + (2*pt*exp(phi*1i)*(m0 - m1)*(m1^2*z^2 - 2*m1^2*z + m1^2 - m2^2*z^2 + pt^2))/(3*m2^2*z*z^(1/2)*(z - 1)))
+simplify( coeffs( M_du0, lambda ) ) 
+-(2*6^(1/2)*pt*exp(-phi*1i)*(- m1^3*z^2 + 2*m1^3*z - m1^3 + m0*m1^2*z^2 - 2*m0*m1^2*z + m0*m1^2 + m1*m2^2*z^2 + m1*m2^2*z - m1*pt^2 - 2*m0*m2^2*z^2 + m0*pt^2))/(3*m2^2*z*z^(1/2)*(z - 1))
+simplify( coeffs( M_dd0, lambda ) ) 
+(2*6^(1/2)*(m0*m1^3*z^4 - 4*m0*m1^3*z^3 + 6*m0*m1^3*z^2 - 4*m0*m1^3*z + m0*m1^3 - m1^2*m2^2*z^3 + 2*m1^2*m2^2*z^2 - m1^2*m2^2*z + m1^2*pt^2*z^2 - 2*m1^2*pt^2*z + m1^2*pt^2 - m0*m1*m2^2*z^4 + 2*m0*m1*m2^2*z^3 - m0*m1*m2^2*z^2 + m0*m1*pt^2*z^2 - 2*m0*m1*pt^2*z + m0*m1*pt^2 + m2^4*z^3 - 2*m2^2*pt^2*z^2 - 2*m2^2*pt^2*z + pt^4))/(3*m2^2*z*z^(1/2)*(z - 1)^2)
+
+---------------------------------------------------
+simplify( coeffs( M_uu1m, lambda ) ) 
+-2^(1/2)*((2^(1/2)*pt*exp(phi*1i)*(m1^2*z^2 - 2*m1^2*z + m1^2 - m2^2*z^2 + pt^2))/(m2*z^(1/2)*(z - 1)^2) + (2^(1/2)*pt*(cos(phi) + sin(phi)*1i)*(- m2^2*z + pt^2 + m0*m1*z^2 - 2*m0*m1*z + m0*m1))/(m2*z^(1/2)*(z - 1)^2))
+simplify( coeffs( M_ud1m, lambda ) ) 
+-(2*pt^2*exp(phi*2i)*(m0 - m1))/(m2*z^(1/2)*(z - 1))
+simplify( coeffs( M_du1m, lambda ) ) 
+-(2*(m1^3*z^2 - 2*m1^3*z + m1^3 - m0*m1^2*z^3 + 2*m0*m1^2*z^2 - m0*m1^2*z - m1*m2^2*z^2 + m1*pt^2*z + m1*pt^2 + m0*m2^2*z^3 - 2*m0*pt^2*z))/(m2*z*z^(1/2)*(z - 1))
+simplify( coeffs( M_dd1m, lambda ) ) 
+-2^(1/2)*((2^(1/2)*pt*(cos(phi) + sin(phi)*1i)*(- m2^2*z + pt^2 + m0*m1*z^2 - 2*m0*m1*z + m0*m1))/(m2*z^(1/2)*(z - 1)^2) + (2^(1/2)*pt*exp(phi*1i)*(m1^2*z^2 - 2*m1^2*z + m1^2 - m2^2*z^2 + pt^2))/(m2*z*z^(1/2)*(z - 1)^2))
+
+---------------------------------------------------
+simplify( coeffs( M_uu2m, lambda ) ) 
+(4*pt^2*z*exp(phi*2i))/(z^(1/2)*(z - 1)^2)
+simplify( coeffs( M_ud2m, lambda ) ) 
+0
+simplify( coeffs( M_du2m, lambda ) ) 
+(4*pt*(m1 - m0*z)*(cos(phi) + sin(phi)*1i))/(z^(1/2)*(z - 1))
+simplify( coeffs( M_dd2m, lambda ) ) 
+(4*pt^2*exp(phi*2i))/(z^(1/2)*(z - 1)^2)
+ 
+---------------------------------------------------
+ 
+
+

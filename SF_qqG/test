@@ -1,0 +1,123 @@
+% variables %
+syms pt m0 m1 m2 p z  phi real;
+syms lambda real;
+m0_ = m0*lambda;
+m1_ = m1*lambda;
+m2_ = m2*lambda;
+pt_ = pt*lambda;
+
+% Pauli matrix, Gamma matrix, and metric tensor
+sig_x = [ 0 1; 1 0];
+sig_y = [ 0 -i; i 0];
+sig_z = [ 1 0; 0 -1];
+I = [1 0; 0 1];
+null = [0 0; 0 0];
+gam_0 = [null I; I null];
+gam_x = [null sig_x; -sig_x null];
+gam_y = [null sig_y; -sig_y null];
+gam_z = [null sig_z; -sig_z null];
+eta = [ 1 0 0 0; 0 -1 0 0; 0 0 -1 0; 0 0 0 -1];
+
+% momentum vectors %
+p0 = [ p+m0_^2/2/p; 0; 0; p];
+n = [ 1; 0; 0; -1];
+qt = [ 0; pt_*cos(phi); pt_*sin(phi); 0];
+beta1 = simplify( (pt_^2+m1_^2-z^2*m0_^2)/4/z/p );
+beta2 = simplify( (pt_^2+m2_^2-(1-z)^2*m0_^2)/4/(1-z)/p );
+beta0 = simplify( beta1 + beta2 );
+q0 = p0 + beta0*n;
+q1 = z*p0 + beta1*n + qt;
+q2 = (1-z)*p0 + beta2*n - qt;
+
+% polarizations %
+pol2_p = simplify( [0; -1/sqrt(2)*(1-pt_^2*exp(i*phi)*cos(phi)/(2*p^2*(1-z)^2)); -i/sqrt(2)+pt_^2*exp(i*phi)*sin(phi)/(2*sqrt(2)*p^2*(1-z)^2); -pt_*exp(i*phi)/(sqrt(2)*(1-z)*p)] );
+pol2_m = simplify( [0; 1/sqrt(2)*(1-pt_^2*exp(-i*phi)*cos(phi)/(2*p^2*(1-z)^2)); -i/sqrt(2)-pt_^2*exp(-i*phi)*sin(phi)/(2*sqrt(2)*p^2*(1-z)^2); pt_*exp(-i*phi)/(sqrt(2)*(1-z)*p)] );
+pol2_0 = simplify( [p*(1-z)/m2_+(pt_^2+m0_^2*(1-z)^2-m2_^2)/(4*p*(1-z)*m2_); -cos(phi)*(pt_/m2_+m2_*pt_/(2*p^2*(1-z)^2)); -sin(phi)*(pt_/m2_+m2_*pt_/(2*p^2*(1-z)^2)); p*(1-z)/m2_-(pt_^2-m0_^2*(1-z)^2-m2_^2)/(4*p*(1-z)*m2_)] );
+pol2_0star = simplify( m2_/2/p/(1-z)*[-1; -cos(phi)*pt_/p/(1-z); -sin(phi)*pt_/p/(1-z); 1] );
+pol2sl_c0 = simplify( conj(pol2_0(1))*gam_0 - conj(pol2_0(2))*gam_x - conj(pol2_0(3))*gam_y - conj(pol2_0(4))*gam_z );
+pol2sl_c0star = simplify( conj(pol2_0star(1))*gam_0 - conj(pol2_0star(2))*gam_x - conj(pol2_0star(3))*gam_y - conj(pol2_0star(4))*gam_z );
+pol2sl_cm = simplify( conj(pol2_m(1))*gam_0 - conj(pol2_m(2))*gam_x - conj(pol2_m(3))*gam_y - conj(pol2_m(4))*gam_z );
+pol2sl_cp = simplify( conj(pol2_p(1))*gam_0 - conj(pol2_p(2))*gam_x - conj(pol2_p(3))*gam_y - conj(pol2_p(4))*gam_z );
+
+% spinors %
+u0_u = [ m0_/sqrt(2*p); 0; sqrt(2*p)*(1+m0_^2/8/p^2); 0];
+u0_d = [ 0; sqrt(2*p)*(1+m0_^2/8/p^2); 0; m0_/sqrt(2*p)];
+ub1_u = [ sqrt(2*z*p)*(1+m0_^2/8/p^2), exp(-i*phi)*pt_/sqrt(2*z*p), m1_/sqrt(2*z*p), exp(-i*phi)*pt_*m1_/(2*z*p)^(3/2)];
+ub1_d = [ -exp(i*phi)*pt_*m1_/(2*z*p)^(3/2), m1_/sqrt(2*z*p), -exp(i*phi)*pt_/sqrt(2*z*p), sqrt(2*z*p)*(1+m0_^2/8/p^2)];
+
+% ub*ep*u %
+uup = simplify(ub1_u*pol2sl_cp*u0_u);
+udp = simplify(ub1_d*pol2sl_cp*u0_u);
+dup = simplify(ub1_u*pol2sl_cp*u0_d);
+ddp = simplify(ub1_d*pol2sl_cp*u0_d);
+
+uum = simplify(ub1_u*pol2sl_cm*u0_u);
+udm = simplify(ub1_d*pol2sl_cm*u0_u);
+dum = simplify(ub1_u*pol2sl_cm*u0_d);
+ddm = simplify(ub1_d*pol2sl_cm*u0_d);
+
+uu0 = simplify(ub1_u*pol2sl_c0*u0_u);
+ud0 = simplify(ub1_d*pol2sl_c0*u0_u);
+du0 = simplify(ub1_u*pol2sl_c0*u0_d);
+dd0 = simplify(ub1_d*pol2sl_c0*u0_d);
+
+% pol*q %
+Polpq = simplify(pol2_p'*eta*(q0+q1));
+Polmq = simplify(pol2_m'*eta*(q0+q1));
+Pol0q = simplify(pol2_0'*eta*(q0+q1));
+
+% calculations %
+M_uu2p = taylor( simplify( 2*uup*Polpq ), lambda, 2);
+M_ud2p = simplify( 2*udp*Polpq );
+M_du2p = simplify( 2*dup*Polpq );
+M_dd2p = simplify( 2*ddp*Polpq );
+
+M_uu1p = simplify( sqrt(2)*(uup*Pol0q + uu0*Polpq) );
+M_ud1p = simplify( sqrt(2)*(udp*Pol0q + ud0*Polpq) );
+M_du1p = simplify( sqrt(2)*(dup*Pol0q + du0*Polpq) );
+M_dd1p = simplify( sqrt(2)*(ddp*Pol0q + dd0*Polpq) );
+
+M_uu0 = simplify( sqrt(2/3)*(uup*Polmq + uum*Polpq + 2*uu0*Pol0q) );
+M_ud0 = simplify( sqrt(2/3)*(udp*Polmq + udm*Polpq + 2*ud0*Pol0q) );
+M_du0 = simplify( sqrt(2/3)*(dup*Polmq + dum*Polpq + 2*du0*Pol0q) );
+M_dd0 = simplify( sqrt(2/3)*(ddp*Polmq + ddm*Polpq + 2*dd0*Pol0q) );
+
+M_uu1m = simplify( sqrt(2)*(uum*Pol0q + uu0*Polmq) );
+M_ud1m = simplify( sqrt(2)*(udm*Pol0q + ud0*Polmq) );
+M_du1m = simplify( sqrt(2)*(dum*Pol0q + du0*Polmq) );
+M_dd1m = simplify( sqrt(2)*(ddm*Pol0q + dd0*Polmq) );
+
+M_uu2m = simplify( 2*uum*Polmq );
+M_ud2m = simplify( 2*udm*Polmq );
+M_du2m = simplify( 2*dum*Polmq );
+M_dd2m = simplify( 2*ddm*Polmq );
+
+% Print results %
+simplify( coeffs( M_uu2p, lambda ), 'IgnoreAnalyticConstraints', true )
+simplify( coeffs( M_ud2p, lambda ), 'IgnoreAnalyticConstraints', true )
+simplify( coeffs( M_du2p, lambda ), 'IgnoreAnalyticConstraints', true )
+simplify( coeffs( M_dd2p, lambda ), 'IgnoreAnalyticConstraints', true )
+
+simplify( coeffs( M_uu1p, lambda ), 'IgnoreAnalyticConstraints', true )
+simplify( coeffs( M_ud1p, lambda ), 'IgnoreAnalyticConstraints', true )
+simplify( coeffs( M_du1p, lambda ), 'IgnoreAnalyticConstraints', true )
+simplify( coeffs( M_dd1p, lambda ), 'IgnoreAnalyticConstraints', true )
+
+simplify( coeffs( M_uu0, lambda ), 'IgnoreAnalyticConstraints', true )
+simplify( coeffs( M_ud0, lambda ), 'IgnoreAnalyticConstraints', true )
+simplify( coeffs( M_du0, lambda ), 'IgnoreAnalyticConstraints', true )
+simplify( coeffs( M_dd0, lambda ), 'IgnoreAnalyticConstraints', true )
+
+simplify( coeffs( M_uu1m, lambda ), 'IgnoreAnalyticConstraints', true )
+simplify( coeffs( M_ud1m, lambda ), 'IgnoreAnalyticConstraints', true )
+simplify( coeffs( M_du1m, lambda ), 'IgnoreAnalyticConstraints', true )
+simplify( coeffs( M_dd1m, lambda ), 'IgnoreAnalyticConstraints', true )
+
+simplify( coeffs( M_uu2m, lambda ), 'IgnoreAnalyticConstraints', true )
+simplify( coeffs( M_ud2m, lambda ), 'IgnoreAnalyticConstraints', true )
+simplify( coeffs( M_du2m, lambda ), 'IgnoreAnalyticConstraints', true )
+simplify( coeffs( M_dd2m, lambda ), 'IgnoreAnalyticConstraints', true )
+
+
+
+

@@ -1,0 +1,14 @@
+# HERWIG7 BSM splitting function calculation
+
+Matlab codes to calculate AO BSM splitting functions
+
+- Dawson/: Calculate Dawson's approach
+- SF_*/: Calculate the splitting functions for each process
+- SplittingFunctions_*.mlx: Calculate all splitting functions in once
+
+## References
+
+- HW7 EWK shower paper: https://arxiv.org/pdf/2108.10817.pdf
+- HW7 BSM shower developing branch: https://phab.hepforge.org/diffusion/547/
+- HW7 BSM shower notes: https://phab.hepforge.org/diffusion/548/
+

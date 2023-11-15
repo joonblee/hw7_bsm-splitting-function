@@ -1,0 +1,105 @@
+% variables %
+syms pt m0 m1 m2 p z  phi real;
+syms lambda real;
+m0_ = m0*lambda;
+m1_ = m1*lambda;
+m2_ = m2*lambda;
+pt_ = pt*lambda;
+
+% Pauli matrix, Gamma matrix, and metric tensor
+sig_x = [ 0 1; 1 0];
+sig_y = [ 0 -i; i 0];
+sig_z = [ 1 0; 0 -1];
+I = [1 0; 0 1];
+null = [0 0; 0 0];
+gam_0 = [null I; I null];
+gam_x = [null sig_x; -sig_x null];
+gam_y = [null sig_y; -sig_y null];
+gam_z = [null sig_z; -sig_z null];
+eta = [ 1 0 0 0; 0 -1 0 0; 0 0 -1 0; 0 0 0 -1];
+
+% momentum vectors %
+p0 = [ p+m0_^2/2/p; 0; 0; p];
+n = [ 1; 0; 0; -1];
+qt = [ 0; pt_*cos(phi); pt_*sin(phi); 0];
+beta1 =  (pt_^2+m1_^2-z^2*m0_^2)/4/z/p ;
+beta2 =  (pt_^2+m2_^2-(1-z)^2*m0_^2)/4/(1-z)/p ;
+beta0 =  beta1 + beta2 ;
+q0 = p0 + beta0*n;
+q1 = z*p0 + beta1*n + qt;
+q2 = (1-z)*p0 + beta2*n - qt;
+
+% polarizations %
+pol2_p =  [0; -1/sqrt(2)*(1-pt_^2*exp(i*phi)*cos(phi)/(2*p^2*(1-z)^2)); -i/sqrt(2)+pt_^2*exp(i*phi)*sin(phi)/(2*sqrt(2)*p^2*(1-z)^2); -pt_*exp(i*phi)/(sqrt(2)*(1-z)*p)] ;
+pol2_m =  [0; 1/sqrt(2)*(1-pt_^2*exp(-i*phi)*cos(phi)/(2*p^2*(1-z)^2)); -i/sqrt(2)-pt_^2*exp(-i*phi)*sin(phi)/(2*sqrt(2)*p^2*(1-z)^2); pt_*exp(-i*phi)/(sqrt(2)*(1-z)*p)] ;
+% pol2_0 = simplify( [p*(1-z)/m2_+(pt_^2+m0_^2*(1-z)^2-m2_^2)/(4*p*(1-z)*m2_); -cos(phi)*(pt_/m2_+m2_*pt_/(2*p^2*(1-z)^2)); -sin(phi)*(pt_/m2_+m2_*pt_/(2*p^2*(1-z)^2)); p*(1-z)/m2_-(pt_^2-m0_^2*(1-z)^2-m2_^2)/(4*p*(1-z)*m2_)] );
+pol2_0 = simplify( m2_/2/p/(1-z)*[-1; -cos(phi)*pt_/p/(1-z); -sin(phi)*pt_/p/(1-z); 1] ); % Dawson's approach
+
+pol2_2p = simplify( pol2_p*pol2_p.' );
+pol2_2m = simplify( pol2_m*pol2_m.' );
+pol2_1p = simplify( 1/sqrt(2)*(pol2_p*pol2_0.' + pol2_0*pol2_p.') );
+pol2_1m = simplify( 1/sqrt(2)*(pol2_m*pol2_0.' + pol2_0*pol2_m.') );
+pol2_00 = simplify( 1/sqrt(6)*(pol2_p*pol2_m.' + pol2_m*pol2_p.' + 2*pol2_0*pol2_0.') );
+
+% spinors %
+u0_u = [ m0_/sqrt(2*p); 0; sqrt(2*p)*(1+m0_^2/8/p^2); 0];
+u0_d = [ 0; sqrt(2*p)*(1+m0_^2/8/p^2); 0; m0_/sqrt(2*p)];
+ub1_u = [ sqrt(2*z*p)*(1+m0_^2/8/p^2), exp(-i*phi)*pt_/sqrt(2*z*p), m1_/sqrt(2*z*p), exp(-i*phi)*pt_*m1_/(2*z*p)^(3/2)];
+ub1_d = [ -exp(i*phi)*pt_*m1_/(2*z*p)^(3/2), m1_/sqrt(2*z*p), -exp(i*phi)*pt_/sqrt(2*z*p), sqrt(2*z*p)*(1+m0_^2/8/p^2)];
+
+% calculations %
+M_uu2p = simplify( subs( subs( taylor( 2*ub1_u*gam_dot(eta*conj(pol2_2p)*eta*(q0+q1))*u0_u, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_ud2p = simplify( subs( subs( taylor( 2*ub1_d*gam_dot(eta*conj(pol2_2p)*eta*(q0+q1))*u0_u, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_du2p = simplify( subs( subs( taylor( 2*ub1_u*gam_dot(eta*conj(pol2_2p)*eta*(q0+q1))*u0_d, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_dd2p = simplify( subs( subs( taylor( 2*ub1_d*gam_dot(eta*conj(pol2_2p)*eta*(q0+q1))*u0_d, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+
+M_uu1p = simplify( subs( subs( taylor( 2*ub1_u*gam_dot(eta*conj(pol2_1p)*eta*(q0+q1))*u0_u, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_ud1p = simplify( subs( subs( taylor( 2*ub1_d*gam_dot(eta*conj(pol2_1p)*eta*(q0+q1))*u0_u, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_du1p = simplify( subs( subs( taylor( 2*ub1_u*gam_dot(eta*conj(pol2_1p)*eta*(q0+q1))*u0_d, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_dd1p = simplify( subs( subs( taylor( 2*ub1_d*gam_dot(eta*conj(pol2_1p)*eta*(q0+q1))*u0_d, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+
+M_uu0 = simplify( subs( subs( taylor( 2*ub1_u*gam_dot(eta*conj(pol2_00)*eta*(q0+q1))*u0_u, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_ud0 = simplify( subs( subs( taylor( 2*ub1_d*gam_dot(eta*conj(pol2_00)*eta*(q0+q1))*u0_u, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_du0 = simplify( subs( subs( taylor( 2*ub1_u*gam_dot(eta*conj(pol2_00)*eta*(q0+q1))*u0_d, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_dd0 = simplify( subs( subs( taylor( 2*ub1_d*gam_dot(eta*conj(pol2_00)*eta*(q0+q1))*u0_d, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+
+M_uu1m = simplify( subs( subs( taylor( 2*ub1_u*gam_dot(eta*conj(pol2_1m)*eta*(q0+q1))*u0_u, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_ud1m = simplify( subs( subs( taylor( 2*ub1_d*gam_dot(eta*conj(pol2_1m)*eta*(q0+q1))*u0_u, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_du1m = simplify( subs( subs( taylor( 2*ub1_u*gam_dot(eta*conj(pol2_1m)*eta*(q0+q1))*u0_d, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_dd1m = simplify( subs( subs( taylor( 2*ub1_d*gam_dot(eta*conj(pol2_1m)*eta*(q0+q1))*u0_d, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+
+M_uu2m = simplify( subs( subs( taylor( 2*ub1_u*gam_dot(eta*conj(pol2_2m)*eta*(q0+q1))*u0_u, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_ud2m = simplify( subs( subs( taylor( 2*ub1_d*gam_dot(eta*conj(pol2_2m)*eta*(q0+q1))*u0_u, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_du2m = simplify( subs( subs( taylor( 2*ub1_u*gam_dot(eta*conj(pol2_2m)*eta*(q0+q1))*u0_d, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_dd2m = simplify( subs( subs( taylor( 2*ub1_d*gam_dot(eta*conj(pol2_2m)*eta*(q0+q1))*u0_d, lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+
+
+% Print results %
+M_uu2p
+M_ud2p
+M_du2p
+M_dd2p
+
+M_uu1p
+M_ud1p
+M_du1p
+M_dd1p
+
+M_uu0
+M_ud0
+M_du0
+M_dd0
+
+M_uu1m
+M_ud1m
+M_du1m
+M_dd1m
+
+M_uu2m
+M_ud2m
+M_du2m
+M_dd2m
+
+
+
+

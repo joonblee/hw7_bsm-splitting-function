@@ -1,0 +1,1 @@
+simplify( 4*g^2*((q2.'*eta*q0)*(q2.'*eta*q1) - (q2.'*eta*q2)*(q0.'*eta*q1) + (q2.'*eta*q1)*(q2.'*eta*q0)) );

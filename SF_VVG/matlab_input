@@ -1,0 +1,325 @@
+% variables %
+syms pt m0 m1 m2 p z  phi real;
+syms lambda real;
+m0_ = m0*lambda;
+m1_ = m1*lambda;
+m2_ = m2*lambda;
+pt_ = pt*lambda;
+
+% Pauli matrix, Gamma matrix, and metric tensor
+sig_x = [ 0 1; 1 0];
+sig_y = [ 0 -i; i 0];
+sig_z = [ 1 0; 0 -1];
+I = [1 0; 0 1];
+null = [0 0; 0 0];
+gam_0 = [null I; I null];
+gam_x = [null sig_x; -sig_x null];
+gam_y = [null sig_y; -sig_y null];
+gam_z = [null sig_z; -sig_z null];
+eta = [ 1 0 0 0; 0 -1 0 0; 0 0 -1 0; 0 0 0 -1];
+
+% momentum vectors %
+p0 = [ p+m0_^2/2/p; 0; 0; p];
+n = [ 1; 0; 0; -1];
+qt = [ 0; pt_*cos(phi); pt_*sin(phi); 0];
+beta1 = simplify( (pt_^2+m1_^2-z^2*m0_^2)/4/z/p );
+beta2 = simplify( (pt_^2+m2_^2-(1-z)^2*m0_^2)/4/(1-z)/p );
+beta0 = simplify( beta1 + beta2 );
+q0 = simplify( p0 + beta0*n );
+q1 = simplify( z*p0 + beta1*n + qt );
+q2 = simplify( (1-z)*p0 + beta2*n - qt );
+
+% polarization %
+pol0_p = [ 0; -1/sqrt(2); -i/sqrt(2); 0];
+pol0_m = [ 0; 1/sqrt(2); -i/sqrt(2); 0];
+pol0_0 = simplify( 1/m0_ * [ p-beta0; 0; 0; p+m0_^2/2/p+beta0] );
+%pol0_0 = simplify( taylor( 1/(p-2*beta0+sqrt(p^2+m0_^2))*[-m0_-4*p*beta0/m0_; 0; 0; m0_+4*p*beta0/m0_], lambda, 'Order', 3) ); % Dawson's approach
+
+pol1_p = simplify( [ 0; -1/sqrt(2)*(1-pt_^2*exp(i*phi)*cos(phi)/2/z^2/p^2); -i/sqrt(2)+pt_^2*exp(i*phi)*sin(phi)/2/sqrt(2)/z^2/p^2; pt_*exp(i*phi)/sqrt(2)/z/p] );
+pol1_m = simplify( [ 0; 1/sqrt(2)*(1-pt_^2*exp(-i*phi)*cos(phi)/2/z^2/p^2); -i/sqrt(2)-pt_^2*exp(-i*phi)*sin(phi)/2/sqrt(2)/z^2/p^2; -pt_*exp(-i*phi)/sqrt(2)/z/p] );
+pol1_0 = simplify( q1/m1_ + [ -m1_/2/z/p; m1_*pt_/2/z^2/p^2*cos(phi); m1_*pt_/2/z^2/p^2*sin(phi); m1_/2/z/p] );
+%pol1_0 = simplify( m1_/2/z/p * [ -1; pt_*cos(phi)/z/p; pt_*sin(phi)/z/p; 1] ); % Dawson's approach
+
+pol2_p = simplify( [0; -1/sqrt(2)*(1-pt_^2*exp(i*phi)*cos(phi)/(2*p^2*(1-z)^2)); -i/sqrt(2)+pt_^2*exp(i*phi)*sin(phi)/(2*sqrt(2)*p^2*(1-z)^2); -pt_*exp(i*phi)/(sqrt(2)*(1-z)*p)] );
+pol2_m = simplify( [0; 1/sqrt(2)*(1-pt_^2*exp(-i*phi)*cos(phi)/(2*p^2*(1-z)^2)); -i/sqrt(2)-pt_^2*exp(-i*phi)*sin(phi)/(2*sqrt(2)*p^2*(1-z)^2); pt_*exp(-i*phi)/(sqrt(2)*(1-z)*p)] );
+pol2_0 = simplify( [p*(1-z)/m2_+(pt_^2+m0_^2*(1-z)^2-m2_^2)/(4*p*(1-z)*m2_); -cos(phi)*(pt_/m2_+m2_*pt_/(2*p^2*(1-z)^2)); -sin(phi)*(pt_/m2_+m2_*pt_/(2*p^2*(1-z)^2)); p*(1-z)/m2_-(pt_^2-m0_^2*(1-z)^2-m2_^2)/(4*p*(1-z)*m2_)] );
+%pol2_0 = simplify( m2_/2/p/(1-z)*[-1; -cos(phi)*pt_/p/(1-z); -sin(phi)*pt_/p/(1-z); 1] ); % Dawson's approach
+
+pol2_2p = simplify( pol2_p*pol2_p.' );
+pol2_2m = simplify( pol2_m*pol2_m.' );
+pol2_1p = simplify( 1/sqrt(2)*(pol2_p*pol2_0.' + pol2_0*pol2_p.') );
+pol2_1m = simplify( 1/sqrt(2)*(pol2_m*pol2_0.' + pol2_0*pol2_m.') );
+pol2_00 = simplify( 1/sqrt(6)*(pol2_p*pol2_m.' + pol2_m*pol2_p.' + 2*pol2_0*pol2_0.') );
+%pol2_1pstar = simplify( 1/sqrt(2)*(pol2_p*pol2_0star.' + pol2_0star*pol2_p.') );
+%pol2_1mstar = simplify( 1/sqrt(2)*(pol2_m*pol2_0star.' + pol2_0star*pol2_m.') );
+%pol2_00star = simplify( 1/sqrt(6)*(pol2_p*pol2_m.' + pol2_m*pol2_p.' + 2*pol2_0star*pol2_0star.') );
+
+% calculations %
+qq = simplify( q0.'*eta*q1 );
+
+pppol021_p2pp = simplify( pol0_p.'*eta*conj(pol2_2p)*eta*conj(pol1_p) );
+pppol021_p2p0 = simplify( pol0_p.'*eta*conj(pol2_2p)*eta*conj(pol1_0) );
+pppol021_p2pm = simplify( pol0_p.'*eta*conj(pol2_2p)*eta*conj(pol1_m) );
+pppol021_02pp = simplify( pol0_0.'*eta*conj(pol2_2p)*eta*conj(pol1_p) );
+pppol021_02p0 = simplify( pol0_0.'*eta*conj(pol2_2p)*eta*conj(pol1_0) );
+pppol021_02pm = simplify( pol0_0.'*eta*conj(pol2_2p)*eta*conj(pol1_m) );
+pppol021_m2pp = simplify( pol0_m.'*eta*conj(pol2_2p)*eta*conj(pol1_p) );
+pppol021_m2p0 = simplify( pol0_m.'*eta*conj(pol2_2p)*eta*conj(pol1_0) );
+pppol021_m2pm = simplify( pol0_m.'*eta*conj(pol2_2p)*eta*conj(pol1_m) );
+
+pppol021_p1pp = simplify( pol0_p.'*eta*conj(pol2_1p)*eta*conj(pol1_p) );
+pppol021_p1p0 = simplify( pol0_p.'*eta*conj(pol2_1p)*eta*conj(pol1_0) );
+pppol021_p1pm = simplify( pol0_p.'*eta*conj(pol2_1p)*eta*conj(pol1_m) );
+pppol021_01pp = simplify( pol0_0.'*eta*conj(pol2_1p)*eta*conj(pol1_p) );
+pppol021_01p0 = simplify( pol0_0.'*eta*conj(pol2_1p)*eta*conj(pol1_0) );
+pppol021_01pm = simplify( pol0_0.'*eta*conj(pol2_1p)*eta*conj(pol1_m) );
+pppol021_m1pp = simplify( pol0_m.'*eta*conj(pol2_1p)*eta*conj(pol1_p) );
+pppol021_m1p0 = simplify( pol0_m.'*eta*conj(pol2_1p)*eta*conj(pol1_0) );
+pppol021_m1pm = simplify( pol0_m.'*eta*conj(pol2_1p)*eta*conj(pol1_m) );
+
+pppol021_p0p = simplify( pol0_p.'*eta*conj(pol2_00)*eta*conj(pol1_p) );
+pppol021_p00 = simplify( pol0_p.'*eta*conj(pol2_00)*eta*conj(pol1_0) );
+pppol021_p0m = simplify( pol0_p.'*eta*conj(pol2_00)*eta*conj(pol1_m) );
+pppol021_00p = simplify( pol0_0.'*eta*conj(pol2_00)*eta*conj(pol1_p) );
+pppol021_000 = simplify( pol0_0.'*eta*conj(pol2_00)*eta*conj(pol1_0) );
+pppol021_00m = simplify( pol0_0.'*eta*conj(pol2_00)*eta*conj(pol1_m) );
+pppol021_m0p = simplify( pol0_m.'*eta*conj(pol2_00)*eta*conj(pol1_p) );
+pppol021_m00 = simplify( pol0_m.'*eta*conj(pol2_00)*eta*conj(pol1_0) );
+pppol021_m0m = simplify( pol0_m.'*eta*conj(pol2_00)*eta*conj(pol1_m) );
+
+pppol021_p1mp = simplify( pol0_p.'*eta*conj(pol2_1m)*eta*conj(pol1_p) );
+pppol021_p1m0 = simplify( pol0_p.'*eta*conj(pol2_1m)*eta*conj(pol1_0) );
+pppol021_p1mm = simplify( pol0_p.'*eta*conj(pol2_1m)*eta*conj(pol1_m) );
+pppol021_01mp = simplify( pol0_0.'*eta*conj(pol2_1m)*eta*conj(pol1_p) );
+pppol021_01m0 = simplify( pol0_0.'*eta*conj(pol2_1m)*eta*conj(pol1_0) );
+pppol021_01mm = simplify( pol0_0.'*eta*conj(pol2_1m)*eta*conj(pol1_m) );
+pppol021_m1mp = simplify( pol0_m.'*eta*conj(pol2_1m)*eta*conj(pol1_p) );
+pppol021_m1m0 = simplify( pol0_m.'*eta*conj(pol2_1m)*eta*conj(pol1_0) );
+pppol021_m1mm = simplify( pol0_m.'*eta*conj(pol2_1m)*eta*conj(pol1_m) );
+
+pppol021_p2mp = simplify( pol0_p.'*eta*conj(pol2_2m)*eta*conj(pol1_p) );
+pppol021_p2m0 = simplify( pol0_p.'*eta*conj(pol2_2m)*eta*conj(pol1_0) );
+pppol021_p2mm = simplify( pol0_p.'*eta*conj(pol2_2m)*eta*conj(pol1_m) );
+pppol021_02mp = simplify( pol0_0.'*eta*conj(pol2_2m)*eta*conj(pol1_p) );
+pppol021_02m0 = simplify( pol0_0.'*eta*conj(pol2_2m)*eta*conj(pol1_0) );
+pppol021_02mm = simplify( pol0_0.'*eta*conj(pol2_2m)*eta*conj(pol1_m) );
+pppol021_m2mp = simplify( pol0_m.'*eta*conj(pol2_2m)*eta*conj(pol1_p) );
+pppol021_m2m0 = simplify( pol0_m.'*eta*conj(pol2_2m)*eta*conj(pol1_0) );
+pppol021_m2mm = simplify( pol0_m.'*eta*conj(pol2_2m)*eta*conj(pol1_m) );
+
+%
+%pppol120_p2pp = simplify( conj(pol1_p)'*eta*conj(pol2_2p)*eta*pol0_p );
+%pppol120_p2p0 = simplify( conj(pol1_p)'*eta*conj(pol2_2p)*eta*pol0_0 );
+%pppol120_p2pm = simplify( conj(pol1_p)'*eta*conj(pol2_2p)*eta*pol0_m );
+%pppol120_02pp = simplify( conj(pol1_0)'*eta*conj(pol2_2p)*eta*pol0_p );
+%pppol120_02p0 = simplify( conj(pol1_0)'*eta*conj(pol2_2p)*eta*pol0_0 );
+%pppol120_02pm = simplify( conj(pol1_0)'*eta*conj(pol2_2p)*eta*pol0_m );
+%pppol120_m2pp = simplify( conj(pol1_m)'*eta*conj(pol2_2p)*eta*pol0_p );
+%pppol120_m2p0 = simplify( conj(pol1_m)'*eta*conj(pol2_2p)*eta*pol0_0 );
+%pppol120_m2pm = simplify( conj(pol1_m)'*eta*conj(pol2_2p)*eta*pol0_m );
+%
+%pppol120_p1pp = simplify( conj(pol1_p)'*eta*conj(pol2_1p)*eta*pol0_p );
+%pppol120_p1p0 = simplify( conj(pol1_p)'*eta*conj(pol2_1p)*eta*pol0_0 );
+%pppol120_p1pm = simplify( conj(pol1_p)'*eta*conj(pol2_1p)*eta*pol0_m );
+%pppol120_01pp = simplify( conj(pol1_0)'*eta*conj(pol2_1p)*eta*pol0_p );
+%pppol120_01p0 = simplify( conj(pol1_0)'*eta*conj(pol2_1p)*eta*pol0_0 );
+%pppol120_01pm = simplify( conj(pol1_0)'*eta*conj(pol2_1p)*eta*pol0_m );
+%pppol120_m1pp = simplify( conj(pol1_m)'*eta*conj(pol2_1p)*eta*pol0_p );
+%pppol120_m1p0 = simplify( conj(pol1_m)'*eta*conj(pol2_1p)*eta*pol0_0 );
+%pppol120_m1pm = simplify( conj(pol1_m)'*eta*conj(pol2_1p)*eta*pol0_m );
+%
+%pppol120_p0p = simplify( conj(pol1_p)'*eta*conj(pol2_00)*eta*pol0_p );
+%pppol120_p00 = simplify( conj(pol1_p)'*eta*conj(pol2_00)*eta*pol0_0 );
+%pppol120_p0m = simplify( conj(pol1_p)'*eta*conj(pol2_00)*eta*pol0_m );
+%pppol120_00p = simplify( conj(pol1_0)'*eta*conj(pol2_00)*eta*pol0_p );
+%pppol120_000 = simplify( conj(pol1_0)'*eta*conj(pol2_00)*eta*pol0_0 );
+%pppol120_00m = simplify( conj(pol1_0)'*eta*conj(pol2_00)*eta*pol0_m );
+%pppol120_m0p = simplify( conj(pol1_m)'*eta*conj(pol2_00)*eta*pol0_p );
+%pppol120_m00 = simplify( conj(pol1_m)'*eta*conj(pol2_00)*eta*pol0_0 );
+%pppol120_m0m = simplify( conj(pol1_m)'*eta*conj(pol2_00)*eta*pol0_m );
+%
+%pppol120_p1mp = simplify( conj(pol1_p)'*eta*conj(pol2_1m)*eta*pol0_p );
+%pppol120_p1m0 = simplify( conj(pol1_p)'*eta*conj(pol2_1m)*eta*pol0_0 );
+%pppol120_p1mm = simplify( conj(pol1_p)'*eta*conj(pol2_1m)*eta*pol0_m );
+%pppol120_01mp = simplify( conj(pol1_0)'*eta*conj(pol2_1m)*eta*pol0_p );
+%pppol120_01m0 = simplify( conj(pol1_0)'*eta*conj(pol2_1m)*eta*pol0_0 );
+%pppol120_01mm = simplify( conj(pol1_0)'*eta*conj(pol2_1m)*eta*pol0_m );
+%pppol120_m1mp = simplify( conj(pol1_m)'*eta*conj(pol2_1m)*eta*pol0_p );
+%pppol120_m1m0 = simplify( conj(pol1_m)'*eta*conj(pol2_1m)*eta*pol0_0 );
+%pppol120_m1mm = simplify( conj(pol1_m)'*eta*conj(pol2_1m)*eta*pol0_m );
+%
+%pppol120_p2mp = simplify( conj(pol1_p)'*eta*conj(pol2_2m)*eta*pol0_p );
+%pppol120_p2m0 = simplify( conj(pol1_p)'*eta*conj(pol2_2m)*eta*pol0_0 );
+%pppol120_p2mm = simplify( conj(pol1_p)'*eta*conj(pol2_2m)*eta*pol0_m );
+%pppol120_02mp = simplify( conj(pol1_0)'*eta*conj(pol2_2m)*eta*pol0_p );
+%pppol120_02m0 = simplify( conj(pol1_0)'*eta*conj(pol2_2m)*eta*pol0_0 );
+%pppol120_02mm = simplify( conj(pol1_0)'*eta*conj(pol2_2m)*eta*pol0_m );
+%pppol120_m2mp = simplify( conj(pol1_m)'*eta*conj(pol2_2m)*eta*pol0_p );
+%pppol120_m2m0 = simplify( conj(pol1_m)'*eta*conj(pol2_2m)*eta*pol0_0 );
+%pppol120_m2mm = simplify( conj(pol1_m)'*eta*conj(pol2_2m)*eta*pol0_m );
+%
+
+
+ppol12q0_p2p = simplify( pol1_p'*eta*conj(pol2_2p)*eta*q0 );
+ppol12q0_02p = simplify( pol1_0'*eta*conj(pol2_2p)*eta*q0 );
+ppol12q0_m2p = simplify( pol1_m'*eta*conj(pol2_2p)*eta*q0 );
+ppol12q0_p1p = simplify( pol1_p'*eta*conj(pol2_1p)*eta*q0 );
+ppol12q0_01p = simplify( pol1_0'*eta*conj(pol2_1p)*eta*q0 );
+ppol12q0_m1p = simplify( pol1_m'*eta*conj(pol2_1p)*eta*q0 );
+ppol12q0_p0 = simplify( pol1_p'*eta*conj(pol2_00)*eta*q0 );
+ppol12q0_00 = simplify( pol1_0'*eta*conj(pol2_00)*eta*q0 );
+ppol12q0_m0 = simplify( pol1_m'*eta*conj(pol2_00)*eta*q0 );
+ppol12q0_p1m = simplify( pol1_p'*eta*conj(pol2_1m)*eta*q0 );
+ppol12q0_01m = simplify( pol1_0'*eta*conj(pol2_1m)*eta*q0 );
+ppol12q0_m1m = simplify( pol1_m'*eta*conj(pol2_1m)*eta*q0 );
+ppol12q0_p2m = simplify( pol1_p'*eta*conj(pol2_2m)*eta*q0 );
+ppol12q0_02m = simplify( pol1_0'*eta*conj(pol2_2m)*eta*q0 );
+ppol12q0_m2m = simplify( pol1_m'*eta*conj(pol2_2m)*eta*q0 );
+
+ppol02q1_p2p = simplify( pol0_p.'*eta*conj(pol2_2p)*eta*q1 );
+ppol02q1_02p = simplify( pol0_0.'*eta*conj(pol2_2p)*eta*q1 );
+ppol02q1_m2p = simplify( pol0_m.'*eta*conj(pol2_2p)*eta*q1 );
+ppol02q1_p1p = simplify( pol0_p.'*eta*conj(pol2_1p)*eta*q1 );
+ppol02q1_01p = simplify( pol0_0.'*eta*conj(pol2_1p)*eta*q1 );
+ppol02q1_m1p = simplify( pol0_m.'*eta*conj(pol2_1p)*eta*q1 );
+ppol02q1_p0 = simplify( pol0_p.'*eta*conj(pol2_00)*eta*q1 );
+ppol02q1_00 = simplify( pol0_0.'*eta*conj(pol2_00)*eta*q1 );
+ppol02q1_m0 = simplify( pol0_m.'*eta*conj(pol2_00)*eta*q1 );
+ppol02q1_p1m = simplify( pol0_p.'*eta*conj(pol2_1m)*eta*q1 );
+ppol02q1_01m = simplify( pol0_0.'*eta*conj(pol2_1m)*eta*q1 );
+ppol02q1_m1m = simplify( pol0_m.'*eta*conj(pol2_1m)*eta*q1 );
+ppol02q1_p2m = simplify( pol0_p.'*eta*conj(pol2_2m)*eta*q1 );
+ppol02q1_02m = simplify( pol0_0.'*eta*conj(pol2_2m)*eta*q1 );
+ppol02q1_m2m = simplify( pol0_m.'*eta*conj(pol2_2m)*eta*q1 );
+
+
+q1pol0_p = simplify( q1.'*eta*pol0_p );
+q1pol0_0 = simplify( q1.'*eta*pol0_0 );
+q1pol0_m = simplify( q1.'*eta*pol0_m );
+q0pol1_p = simplify( q0.'*eta*conj(pol1_p) );
+q0pol1_0 = simplify( q0.'*eta*conj(pol1_0) );
+q0pol1_m = simplify( q0.'*eta*conj(pol1_m) );
+
+
+qpol2q_2p = simplify( q0.'*eta*conj(pol2_2p)*eta*q1 );
+qpol2q_1p = simplify( q0.'*eta*conj(pol2_1p)*eta*q1 );
+qpol2q_0 = simplify( q0.'*eta*conj(pol2_00)*eta*q1 );
+qpol2q_1m = simplify( q0.'*eta*conj(pol2_1m)*eta*q1 );
+qpol2q_2m = simplify( q0.'*eta*conj(pol2_2m)*eta*q1 );
+
+ppol01_pp = simplify( pol0_p.'*eta*conj(pol1_p) );
+ppol01_p0 = simplify( pol0_p.'*eta*conj(pol1_0) );
+ppol01_pm = simplify( pol0_p.'*eta*conj(pol1_m) );
+ppol01_0p = simplify( pol0_0.'*eta*conj(pol1_p) );
+ppol01_00 = simplify( pol0_0.'*eta*conj(pol1_0) );
+ppol01_0m = simplify( pol0_0.'*eta*conj(pol1_m) );
+ppol01_mp = simplify( pol0_m.'*eta*conj(pol1_p) );
+ppol01_m0 = simplify( pol0_m.'*eta*conj(pol1_0) );
+ppol01_mm = simplify( pol0_m.'*eta*conj(pol1_m) );
+
+
+% matrix elements %
+M_pp2p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_p2pp) +  (ppol12q0_p2p*q1pol0_p+ppol02q1_p2p*q0pol1_p-qpol2q_2p*ppol01_pp) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_p02p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_p2p0) +  (ppol12q0_02p*q1pol0_p+ppol02q1_p2p*q0pol1_0-qpol2q_2p*ppol01_p0) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_pm2p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_p2pm) +  (ppol12q0_m2p*q1pol0_p+ppol02q1_p2p*q0pol1_m-qpol2q_2p*ppol01_pm) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_0p2p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_02pp) +  (ppol12q0_p2p*q1pol0_0+ppol02q1_02p*q0pol1_p-qpol2q_2p*ppol01_0p) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_002p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_02p0) +  (ppol12q0_02p*q1pol0_0+ppol02q1_02p*q0pol1_0-qpol2q_2p*ppol01_00) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_0m2p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_02pm) +  (ppol12q0_m2p*q1pol0_0+ppol02q1_02p*q0pol1_m-qpol2q_2p*ppol01_0m) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_mp2p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_m2pp) +  (ppol12q0_p2p*q1pol0_m+ppol02q1_m2p*q0pol1_p-qpol2q_2p*ppol01_mp) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_m02p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_m2p0) +  (ppol12q0_02p*q1pol0_m+ppol02q1_m2p*q0pol1_0-qpol2q_2p*ppol01_m0) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_mm2p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_m2pm) +  (ppol12q0_m2p*q1pol0_m+ppol02q1_m2p*q0pol1_m-qpol2q_2p*ppol01_mm) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+
+M_pp1p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_p1pp) +  (ppol12q0_p1p*q1pol0_p+ppol02q1_p1p*q0pol1_p-qpol2q_1p*ppol01_pp) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_p01p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_p1p0) +  (ppol12q0_01p*q1pol0_p+ppol02q1_p1p*q0pol1_0-qpol2q_1p*ppol01_p0) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_pm1p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_p1pm) +  (ppol12q0_m1p*q1pol0_p+ppol02q1_p1p*q0pol1_m-qpol2q_1p*ppol01_pm) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_0p1p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_01pp) +  (ppol12q0_p1p*q1pol0_0+ppol02q1_01p*q0pol1_p-qpol2q_1p*ppol01_0p) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_001p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_01p0) +  (ppol12q0_01p*q1pol0_0+ppol02q1_01p*q0pol1_0-qpol2q_1p*ppol01_00) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_0m1p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_01pm) +  (ppol12q0_m1p*q1pol0_0+ppol02q1_01p*q0pol1_m-qpol2q_1p*ppol01_0m) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_mp1p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_m1pp) +  (ppol12q0_p1p*q1pol0_m+ppol02q1_m1p*q0pol1_p-qpol2q_1p*ppol01_mp) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_m01p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_m1p0) +  (ppol12q0_01p*q1pol0_m+ppol02q1_m1p*q0pol1_0-qpol2q_1p*ppol01_m0) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_mm1p = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_m1pm) +  (ppol12q0_m1p*q1pol0_m+ppol02q1_m1p*q0pol1_m-qpol2q_1p*ppol01_mm) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+
+M_pp0 = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_p0p) +  (ppol12q0_p0*q1pol0_p+ppol02q1_p0*q0pol1_p-qpol2q_0*ppol01_pp) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_p00 = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_p00) +  (ppol12q0_00*q1pol0_p+ppol02q1_p0*q0pol1_0-qpol2q_0*ppol01_p0) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_pm0 = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_p0m) +  (ppol12q0_m0*q1pol0_p+ppol02q1_p0*q0pol1_m-qpol2q_0*ppol01_pm) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_0p0 = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_00p) +  (ppol12q0_p0*q1pol0_0+ppol02q1_00*q0pol1_p-qpol2q_0*ppol01_0p) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_000 = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_000) +  (ppol12q0_00*q1pol0_0+ppol02q1_00*q0pol1_0-qpol2q_0*ppol01_00) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_0m0 = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_00m) +  (ppol12q0_m0*q1pol0_0+ppol02q1_00*q0pol1_m-qpol2q_0*ppol01_0m) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_mp0 = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_m0p) +  (ppol12q0_p0*q1pol0_m+ppol02q1_m0*q0pol1_p-qpol2q_0*ppol01_mp) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_m00 = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_m00) +  (ppol12q0_00*q1pol0_m+ppol02q1_m0*q0pol1_0-qpol2q_0*ppol01_m0) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_mm0 = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_m0m) +  (ppol12q0_m0*q1pol0_m+ppol02q1_m0*q0pol1_m-qpol2q_0*ppol01_mm) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+
+M_pp1m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_p1mp) +  (ppol12q0_p1m*q1pol0_p+ppol02q1_p1m*q0pol1_p-qpol2q_1m*ppol01_pp) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_p01m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_p1m0) +  (ppol12q0_01m*q1pol0_p+ppol02q1_p1m*q0pol1_0-qpol2q_1m*ppol01_p0) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_pm1m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_p1mm) +  (ppol12q0_m1m*q1pol0_p+ppol02q1_p1m*q0pol1_m-qpol2q_1m*ppol01_pm) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_0p1m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_01mp) +  (ppol12q0_p1m*q1pol0_0+ppol02q1_01m*q0pol1_p-qpol2q_1m*ppol01_0p) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_001m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_01m0) +  (ppol12q0_01m*q1pol0_0+ppol02q1_01m*q0pol1_0-qpol2q_1m*ppol01_00) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_0m1m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_01mm) +  (ppol12q0_m1m*q1pol0_0+ppol02q1_01m*q0pol1_m-qpol2q_1m*ppol01_0m) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_mp1m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_m1mp) +  (ppol12q0_p1m*q1pol0_m+ppol02q1_m1m*q0pol1_p-qpol2q_1m*ppol01_mp) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_m01m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_m1m0) +  (ppol12q0_01m*q1pol0_m+ppol02q1_m1m*q0pol1_0-qpol2q_1m*ppol01_m0) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_mm1m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_m1mm) +  (ppol12q0_m1m*q1pol0_m+ppol02q1_m1m*q0pol1_m-qpol2q_1m*ppol01_mm) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+
+M_pp2m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_p2mp) +  (ppol12q0_p2m*q1pol0_p+ppol02q1_p2m*q0pol1_p-qpol2q_2m*ppol01_pp) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_p02m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_p2m0) +  (ppol12q0_02m*q1pol0_p+ppol02q1_p2m*q0pol1_0-qpol2q_2m*ppol01_p0) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_pm2m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_p2mm) +  (ppol12q0_m2m*q1pol0_p+ppol02q1_p2m*q0pol1_m-qpol2q_2m*ppol01_pm) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_0p2m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_02mp) +  (ppol12q0_p2m*q1pol0_0+ppol02q1_02m*q0pol1_p-qpol2q_2m*ppol01_0p) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_002m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_02m0) +  (ppol12q0_02m*q1pol0_0+ppol02q1_02m*q0pol1_0-qpol2q_2m*ppol01_00) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_0m2m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_02mm) +  (ppol12q0_m2m*q1pol0_0+ppol02q1_02m*q0pol1_m-qpol2q_2m*ppol01_0m) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_mp2m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_m2mp) +  (ppol12q0_p2m*q1pol0_m+ppol02q1_m2m*q0pol1_p-qpol2q_2m*ppol01_mp) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_m02m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_m2m0) +  (ppol12q0_02m*q1pol0_m+ppol02q1_m2m*q0pol1_0-qpol2q_2m*ppol01_m0) ) ), lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+M_mm2m = simplify( subs( subs( taylor( simplify( 2* ( (-qq+m0_^2)*(pppol021_m2mm) +  (ppol12q0_m2m*q1pol0_m+ppol02q1_m2m*q0pol1_m-qpol2q_2m*ppol01_mm) ) ) , lambda , 'Order', 3 ), lambda, 1 ), m1, m0) );
+
+
+% Print results %
+M_pp2p
+M_p02p
+M_pm2p
+M_0p2p
+M_002p
+M_0m2p
+M_mp2p
+M_m02p
+M_mm2p
+
+M_pp1p
+M_p01p
+M_pm1p
+M_0p1p
+M_001p
+M_0m1p
+M_mp1p
+M_m01p
+M_mm1p
+
+M_pp0
+M_p00
+M_pm0
+M_0p0
+M_000
+M_0m0
+M_mp0
+M_m00
+M_mm0
+
+M_pp1m
+M_p01m
+M_pm1m
+M_0p1m
+M_001m
+M_0m1m
+M_mp1m
+M_m01m
+M_mm1m
+
+M_pp2m
+M_p02m
+M_pm2m
+M_0p2m
+M_002m
+M_0m2m
+M_mp2m
+M_m02m
+M_mm2m
+
+
+
